@@ -256,7 +256,7 @@ CMatrix CMatrix::operator*(const CMatrix& x) const
         }
     }
     return tmp;
-    cout << "Hej";
+   
 }
 
 ostream& operator<<(ostream& o, const CMatrix& m) //operator wypisania
