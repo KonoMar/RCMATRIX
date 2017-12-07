@@ -6,6 +6,7 @@
 #include <iomanip>	/* setw(int) */
 using namespace std;
 
+class OutOfMem{};
 class IndexOutOfRange{};
 class WrongDim{};
 
@@ -15,8 +16,8 @@ class CMatrix
     rcmatrix *mat;
     
 public:
-    class Proxy;
-    class Proxy2;
+    class Proxy; // umozliwiaja rozroznienie read i write, dzieki
+    class Proxy2; // temu podczas odczytywania nie bedzie wykonywana kopia
     CMatrix(fstream& f);
     CMatrix(int r, int c, double val, double val2 = 0);
     CMatrix(const CMatrix& x);
@@ -40,7 +41,6 @@ struct CMatrix::rcmatrix
     
     rcmatrix(int r, int c, double diag, double fill = 0)
     {
-        
         rows = r;
         columns = c;
         data = new double*[rows];
@@ -49,8 +49,8 @@ struct CMatrix::rcmatrix
             for(int i = 0; i < rows; i++)
                 data[i] = new double[columns];
         }
-        
-        catch(...)
+    
+        catch(bad_alloc)
         {
             delete [] data;
             throw;
@@ -94,7 +94,6 @@ struct CMatrix::rcmatrix
     {
         for(int i = 0; i < rows; i++)
             delete [] data[i];
-        
         delete [] data;
     };
     
@@ -102,12 +101,12 @@ struct CMatrix::rcmatrix
     {
         if(n == 1)
             return this;
-        rcmatrix* t = new rcmatrix(rows, columns, data);
+        rcmatrix* t = new rcmatrix(rows, columns, data); // glebokie kopiowanie
         n--;
         return t;
     };
     
-    void assign(int r, int c,double **array)
+    void assign(int r, int c, double **array)
     {
         if(rows != r || columns != c)
         {
@@ -117,12 +116,13 @@ struct CMatrix::rcmatrix
                 tmp[i] = new double[c];
             
             // wypelnianie calej tablicy wartosciami
-            for(int i = 0; i < r; i++){
-                for(int k = 0; k < c; k++){
+            for(int i = 0; i < r; i++)
+            {
+                for(int k = 0; k < c; k++)
+                {
                     tmp[i][k] = array[i][k];
                 }
             }
-            
             delete [] data;
             data = tmp;
         }
@@ -160,20 +160,17 @@ CMatrix::CMatrix(fstream& f)
         }
         catch(bad_alloc)
         {
-            for(int k = i; k <= i; i++)
+            for(int k = i; k < i; i++)
                 delete [] tmp[k];
             delete [] tmp;
         }
-        
     }
-    
     // wypelnienie pomocniczej tablicy wartosciami z pliku
     for(int i = 0; i < r; i++){
         for(int k = 0; k < c; k++){
             f >> tmp[i][k];
         }
     }
-    
     try
     {
         mat = new rcmatrix(r, c, tmp);
@@ -206,13 +203,15 @@ inline CMatrix::~CMatrix(){
 
 CMatrix& CMatrix::operator=(const CMatrix& x)
 {
-    if(mat->n == 1){
+    if(mat->n == 1)
+    {
         //mat->assign(x.mat->rows, x.mat->columns, x.mat->data);
         delete mat;
         mat = x.mat;
         mat->n++;
     }
-    else{
+    else
+    {
         //rcmatrix *m = new rcmatrix(x.mat->rows, x.mat->columns, x.mat->data);
         mat->n--;
         mat = x.mat;
@@ -259,13 +258,13 @@ CMatrix CMatrix::operator*(const CMatrix& x) const
     return tmp;
 }
 
-ostream& operator<<(ostream& o, const CMatrix& m)
+ostream& operator<<(ostream& o, const CMatrix& m) //operator wypisania
 {
     for(int i = 0; i < m.mat->rows; i++)
     {
         for(int k = 0; k < m.mat->columns; k++)
         {
-            o << setw(5) << m.mat->data[i][k] << " ";
+            o << setw(5) << m.mat->data[i][k] << " "; // dlugosc wyswietlania
         }
         o << endl;
     }
@@ -282,21 +281,21 @@ class CMatrix::Proxy2
     public:
     operator double() const
     {
-        cout << "operator double() const" << endl;
+        cout << "operator double() const" << endl; // konstruktor
         return m.read(i, k);
     }
     CMatrix::Proxy2& operator=(double c)
     {
-    cout << "void operator = (double c)" << endl;
+    cout << "void operator = (double c)" << endl; // przypisanie
     m.write(i, k, c);
     return *this;
     }
-    CMatrix::Proxy2& operator=(const Proxy2& ref)
+    CMatrix::Proxy2& operator=(const Proxy2& ref) // przypisanie
     {
         return operator=((double)ref);
     }
 };
-        
+  // *********
 inline double CMatrix::read(int i, int k) const
 {
     return mat->data[i][k];
@@ -306,6 +305,7 @@ inline void CMatrix::write(int w, int k, double d)
 mat = mat->detach();
             mat->data[w][k] = d;
 }
+ //**************
         // Przeladowanie operatora [][]
 class CMatrix::Proxy
 {
@@ -322,15 +322,11 @@ class CMatrix::Proxy
         private:
             int r;
             CMatrix &m;
-        };
+};
         
 CMatrix::Proxy CMatrix::operator[](int index)
 {
-    return Proxy(*this, index);
+    return Proxy(*this, index); // indeksowanie
 }
-
-
-//****************************************************************
-
-
+        
 #endif /* __MATRIX_H__ */

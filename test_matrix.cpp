@@ -1,5 +1,5 @@
 #include <iostream>
-#include "matrix.h"
+#include "Matrix.h"
 
 using namespace std;
 
@@ -24,7 +24,7 @@ int main()
         cout << S << endl;
         
         fstream f1;
-        f1.open("matrix.dat", fstream::in);
+        f1.open("matrix.txt", fstream::in);
         CMatrix B(f1);				//Read the matrix data from file matrix.dat
         f1.close();				//First two values in this file specify the matrix dimensions
         cout << B << endl;
