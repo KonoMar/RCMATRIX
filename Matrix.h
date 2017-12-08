@@ -41,7 +41,8 @@ struct CMatrix::rcmatrix
     
     rcmatrix(int r, int c, double diag, double fill = 0)
     {
-        rows = r;
+        n = 1;
+	rows = r;
         columns = c;
         data = new double*[rows];
         try
@@ -64,8 +65,7 @@ struct CMatrix::rcmatrix
                 else
                     data[i][j] = fill;
             }
-        }   
-        n = 1;	  
+        }   	  
     };
     
     
@@ -133,7 +133,6 @@ struct CMatrix::rcmatrix
                 }
             }
     }
-    
     private:
     rcmatrix(const rcmatrix&);
     rcmatrix& operator=(const rcmatrix&);
