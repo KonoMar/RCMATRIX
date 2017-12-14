@@ -42,7 +42,11 @@ struct CMatrix::rcmatrix
     rcmatrix(int r, int c, double diag, double fill = 0)
     {
         n = 1;
+<<<<<<< HEAD
         rows = r;
+=======
+	rows = r;
+>>>>>>> 38209f1910fc28391e96b27d66894d7be2fec2e8
         columns = c;
         data = new double*[rows];
         try
@@ -65,7 +69,11 @@ struct CMatrix::rcmatrix
                 else
                     data[i][j] = fill;
             }
+<<<<<<< HEAD
         }
+=======
+        }   	  
+>>>>>>> 38209f1910fc28391e96b27d66894d7be2fec2e8
     };
     
     
@@ -133,7 +141,11 @@ struct CMatrix::rcmatrix
                 }
             }
     }
+<<<<<<< HEAD
 private:
+=======
+    private:
+>>>>>>> 38209f1910fc28391e96b27d66894d7be2fec2e8
     rcmatrix(const rcmatrix&);
     rcmatrix& operator=(const rcmatrix&);
 };
